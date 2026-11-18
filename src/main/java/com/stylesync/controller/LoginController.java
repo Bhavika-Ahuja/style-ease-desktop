@@ -2,7 +2,8 @@ package com.stylesync.controller;
 
 import com.stylesync.model.User;
 import com.stylesync.service.AuthService;
-import com.stylesync.view.DashboardView;
+import com.stylesync.service.GoogleAuthService;
+import com.stylesync.view.ImprovedDashboardView;
 import com.stylesync.view.LoginView;
 import com.stylesync.view.RegisterView;
 
@@ -37,7 +38,7 @@ public class LoginController {
             // Login successful
             view.dispose();
             SwingUtilities.invokeLater(() -> {
-                DashboardView dashboard = new DashboardView(user);
+                ImprovedDashboardView dashboard = new ImprovedDashboardView(user);
                 dashboard.setVisible(true);
             });
 
@@ -55,5 +56,34 @@ public class LoginController {
             RegisterView registerView = new RegisterView();
             registerView.setVisible(true);
         });
+    }
+
+    public void handleGoogleLogin() {
+        try {
+            // Show loading message
+            view.showInfo("Opening Google Sign-In in your browser...\nPlease complete the sign-in process.");
+            
+            // Authenticate with Google (opens browser)
+            GoogleAuthService googleAuth = new GoogleAuthService();
+            GoogleAuthService.GoogleUserInfo googleUser = 
+                googleAuth.authenticateWithGoogle();
+            
+            // Login or create user account
+            User user = authService.loginWithGoogle(
+                googleUser.getEmail(), 
+                googleUser.getName()
+            );
+            
+            // Close login window and open dashboard
+            view.dispose();
+            SwingUtilities.invokeLater(() -> {
+                ImprovedDashboardView dashboard = new ImprovedDashboardView(user);
+                dashboard.setVisible(true);
+            });
+            
+        } catch (Exception e) {
+            view.showError("Google Sign-In failed: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

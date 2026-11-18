@@ -18,14 +18,14 @@ import java.util.*;
 public class OutfitView extends JPanel {
     private OutfitController controller;
     private User currentUser;
-    private DashboardView parentView;
+    private JFrame parentView; // Changed to JFrame to work with both DashboardView and ImprovedDashboardView
     
     // Collections Framework - ArrayList for outfits
     private ArrayList<Outfit> displayedOutfits;
     
     private JPanel outfitsGridPanel;
 
-    public OutfitView(User user, DashboardView parent) {
+    public OutfitView(User user, JFrame parent) {
         this.currentUser = user;
         this.parentView = parent;
         this.controller = new OutfitController(this, user);

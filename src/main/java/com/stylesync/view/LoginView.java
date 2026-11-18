@@ -25,7 +25,8 @@ public class LoginView extends JFrame {
         setSize(1000, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(false);
+        setResizable(true);  // Allow resizing and fullscreen
+        setExtendedState(JFrame.MAXIMIZED_BOTH);  // Start maximized
 
         // Main panel with gradient background
         JPanel mainPanel = new JPanel(new GridLayout(1, 2)) {
@@ -139,8 +140,8 @@ public class LoginView extends JFrame {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Email field
-        emailField = new ModernTextField("Email Address");
+        // Email or Username field
+        emailField = new ModernTextField("Email or Username");
         gbc.gridy = 2;
         panel.add(emailField, gbc);
 
@@ -198,6 +199,7 @@ public class LoginView extends JFrame {
         googleButton.setFocusPainted(false);
         googleButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         googleButton.setPreferredSize(new Dimension(300, 45));
+        googleButton.addActionListener(e -> controller.handleGoogleLogin());
         gbc.gridy = 7;
         gbc.insets = new Insets(10, 20, 20, 20);
         panel.add(googleButton, gbc);
@@ -247,6 +249,10 @@ public class LoginView extends JFrame {
 
     public void showSuccess(String message) {
         JOptionPane.showMessageDialog(this, message, "Success", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void showInfo(String message) {
+        JOptionPane.showMessageDialog(this, message, "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public void clearFields() {

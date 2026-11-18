@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class RecommendationView extends JPanel {
     private User currentUser;
-    private DashboardView parentView;
+    private JFrame parentView; // Changed to JFrame to work with both DashboardView and ImprovedDashboardView
     private OutfitService outfitService;
     private WeatherService weatherService;
     
@@ -29,7 +29,7 @@ public class RecommendationView extends JPanel {
     private JComboBox<String> occasionCombo;
     private JLabel weatherLabel;
 
-    public RecommendationView(User user, DashboardView parent) {
+    public RecommendationView(User user, JFrame parent) {
         this.currentUser = user;
         this.parentView = parent;
         this.outfitService = new OutfitService();

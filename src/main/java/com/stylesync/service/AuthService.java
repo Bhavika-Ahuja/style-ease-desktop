@@ -44,21 +44,26 @@ public class AuthService {
         return userDAO.save(user);
     }
 
-    public User login(String username, String password) {
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username is required");
+    public User login(String usernameOrEmail, String password) {
+        if (usernameOrEmail == null || usernameOrEmail.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username or Email is required");
         }
         if (password == null || password.trim().isEmpty()) {
             throw new IllegalArgumentException("Password is required");
         }
 
-        User user = userDAO.findByUsername(username);
+        // Try to find user by username first, then by email
+        User user = userDAO.findByUsername(usernameOrEmail);
         if (user == null) {
-            throw new IllegalArgumentException("Invalid username or password");
+            user = userDAO.findByEmail(usernameOrEmail);
+        }
+        
+        if (user == null) {
+            throw new IllegalArgumentException("Invalid username/email or password");
         }
 
         if (!PasswordUtil.verifyPassword(password, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new IllegalArgumentException("Invalid username/email or password");
         }
 
         // Update last login
@@ -83,5 +88,40 @@ public class AuthService {
 
     public static boolean isLoggedIn() {
         return currentUser != null;
+    }
+
+    /**
+     * Login or register user with Google OAuth
+     */
+    public User loginWithGoogle(String email, String fullName) {
+        // Check if user exists by email
+        User user = userDAO.findByEmail(email);
+        
+        if (user == null) {
+            // Create new user from Google account
+            String username = email.split("@")[0]; // Use email prefix as username
+            
+            // Make username unique if already exists
+            int counter = 1;
+            String originalUsername = username;
+            while (userDAO.usernameExists(username)) {
+                username = originalUsername + counter;
+                counter++;
+            }
+            
+            // Create dummy password hash (Google users don't use password login)
+            String dummyPassword = "GOOGLE_OAUTH_" + java.util.UUID.randomUUID();
+            String passwordHash = PasswordUtil.hashPassword(dummyPassword);
+            
+            user = new User(username, email, passwordHash, fullName);
+            user = userDAO.save(user);
+        }
+        
+        // Update last login
+        userDAO.updateLastLogin(user.getId());
+        user.setLastLogin(new Date());
+        
+        currentUser = user;
+        return user;
     }
 }

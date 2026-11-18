@@ -27,7 +27,8 @@ public class RegisterView extends JFrame {
         setSize(1000, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(false);
+        setResizable(true);  // Allow resizing and fullscreen
+        setExtendedState(JFrame.MAXIMIZED_BOTH);  // Start maximized
 
         // Main panel with gradient background
         JPanel mainPanel = new JPanel(new GridLayout(1, 2)) {

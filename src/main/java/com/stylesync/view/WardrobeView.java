@@ -4,6 +4,7 @@ import com.stylesync.controller.WardrobeController;
 import com.stylesync.model.ClothingItem;
 import com.stylesync.model.User;
 import com.stylesync.util.ImageUtil;
+import com.stylesync.util.SampleDataLoader;
 import com.stylesync.view.components.*;
 import com.stylesync.view.dialog.AddItemDialog;
 import com.stylesync.view.dialog.ItemDetailDialog;
@@ -19,7 +20,7 @@ import java.util.List;
 public class WardrobeView extends JPanel {
     private WardrobeController controller;
     private User currentUser;
-    private DashboardView parentView;
+    private JFrame parentView; // Changed to JFrame to work with both DashboardView and ImprovedDashboardView
     
     // Collections Framework - ArrayList for items
     private ArrayList<ClothingItem> displayedItems;
@@ -32,7 +33,7 @@ public class WardrobeView extends JPanel {
     private JComboBox<String> sortCombo;
     private ModernTextField searchField;
 
-    public WardrobeView(User user, DashboardView parent) {
+    public WardrobeView(User user, JFrame parent) {
         this.currentUser = user;
         this.parentView = parent;
         this.controller = new WardrobeController(this, user);
@@ -75,6 +76,12 @@ public class WardrobeView extends JPanel {
         ModernButton addButton = new ModernButton("+ Add Clothing");
         addButton.addActionListener(e -> showAddItemDialog());
         buttonPanel.add(addButton);
+        
+        // Add sample data button (for demo purposes)
+        ModernButton sampleDataButton = new ModernButton("Load Sample Items", false);
+        sampleDataButton.setBackground(new Color(100, 180, 100));
+        sampleDataButton.addActionListener(e -> loadSampleData());
+        buttonPanel.add(sampleDataButton);
 
         headerPanel.add(titleLabel, BorderLayout.WEST);
         headerPanel.add(buttonPanel, BorderLayout.EAST);
@@ -289,5 +296,32 @@ public class WardrobeView extends JPanel {
 
     public WardrobeController getController() {
         return controller;
+    }
+    
+    private void loadSampleData() {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "This will add 10 sample clothing items to your wardrobe.\nContinue?",
+                "Load Sample Data",
+                JOptionPane.YES_NO_OPTION
+        );
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                SampleDataLoader loader = new SampleDataLoader();
+                loader.loadSampleItems(currentUser);
+                JOptionPane.showMessageDialog(this,
+                        "Sample items loaded successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                refreshItems();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Error loading sample data: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
     }
 }

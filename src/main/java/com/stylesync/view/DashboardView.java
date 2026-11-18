@@ -22,6 +22,7 @@ public class DashboardView extends JFrame {
     private OutfitView outfitView;
     private RecommendationView recommendationView;
     private AnalyticsView analyticsView;
+    private ProfileView profileView;
 
     public DashboardView(User user) {
         this.currentUser = user;
@@ -34,6 +35,8 @@ public class DashboardView extends JFrame {
         setSize(1400, 850);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setResizable(true);  // Allow resizing and fullscreen
+        setExtendedState(JFrame.MAXIMIZED_BOTH);  // Start maximized
 
         // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -53,12 +56,14 @@ public class DashboardView extends JFrame {
         outfitView = new OutfitView(currentUser, this);
         recommendationView = new RecommendationView(currentUser, this);
         analyticsView = new AnalyticsView(currentUser, this);
+        profileView = new ProfileView(currentUser, this);
 
         contentPanel.add(createHomePanel(), "HOME");
         contentPanel.add(wardrobeView, "WARDROBE");
         contentPanel.add(outfitView, "OUTFITS");
         contentPanel.add(recommendationView, "RECOMMENDATIONS");
         contentPanel.add(analyticsView, "ANALYTICS");
+        contentPanel.add(profileView, "PROFILE");
 
         mainPanel.add(contentPanel, BorderLayout.CENTER);
         add(mainPanel);
@@ -100,9 +105,7 @@ public class DashboardView extends JFrame {
         sidebar.add(Box.createVerticalStrut(5));
         sidebar.add(createNavItem("📊", "Wear History", "ANALYTICS"));
         sidebar.add(Box.createVerticalStrut(5));
-        sidebar.add(createNavItem("⭐", "Favorites", "FAVORITES"));
-        sidebar.add(Box.createVerticalStrut(5));
-        sidebar.add(createNavItem("⚙️", "Profile & Settings", "SETTINGS"));
+        sidebar.add(createNavItem("👤", "Profile & Settings", "PROFILE"));
 
         sidebar.add(Box.createVerticalGlue());
 

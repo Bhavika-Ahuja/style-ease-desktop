@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class AnalyticsView extends JPanel {
     private User currentUser;
-    private DashboardView parentView;
+    private JFrame parentView; // Changed to JFrame to work with both DashboardView and ImprovedDashboardView
     private WardrobeService wardrobeService;
     
     // Collections Framework - HashMap for category counts
@@ -34,7 +34,7 @@ public class AnalyticsView extends JPanel {
     private JPanel statsPanel;
     private WardrobeStats stats;
 
-    public AnalyticsView(User user, DashboardView parent) {
+    public AnalyticsView(User user, JFrame parent) {
         this.currentUser = user;
         this.parentView = parent;
         this.wardrobeService = new WardrobeService();

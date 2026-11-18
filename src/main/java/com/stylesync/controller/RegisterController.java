@@ -2,6 +2,7 @@ package com.stylesync.controller;
 
 import com.stylesync.model.User;
 import com.stylesync.service.AuthService;
+import com.stylesync.view.ImprovedDashboardView;
 import com.stylesync.view.LoginView;
 import com.stylesync.view.RegisterView;
 
@@ -49,9 +50,17 @@ public class RegisterController {
         }
 
         try {
+            // Register user
             User user = authService.register(username, email, password, fullName);
-            view.showSuccess("Registration successful! Please login.");
-            showLoginView();
+            
+            // Automatically login the user
+            User loggedInUser = authService.login(username, password);
+            
+            // Show success message
+            view.showSuccess("Account created successfully! Welcome to StyleSync!");
+            
+            // Go directly to dashboard
+            showDashboard(loggedInUser);
 
         } catch (IllegalArgumentException e) {
             view.showError(e.getMessage());
@@ -59,6 +68,14 @@ public class RegisterController {
             view.showError("An error occurred during registration. Please try again.");
             e.printStackTrace();
         }
+    }
+    
+    private void showDashboard(User user) {
+        view.dispose();
+        SwingUtilities.invokeLater(() -> {
+            ImprovedDashboardView dashboard = new ImprovedDashboardView(user);
+            dashboard.setVisible(true);
+        });
     }
 
     public void showLoginView() {
