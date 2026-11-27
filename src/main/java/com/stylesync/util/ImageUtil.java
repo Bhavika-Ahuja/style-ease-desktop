@@ -6,6 +6,8 @@ import okhttp3.Response;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -16,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Iterator;
 import java.util.UUID;
 
 /**
@@ -31,6 +34,13 @@ public class ImageUtil {
         File dir = new File(IMAGE_DIRECTORY);
         if (!dir.exists()) {
             dir.mkdirs();
+        }
+        
+        // List available ImageIO readers
+        System.out.println("Available ImageIO readers:");
+        String[] readerFormats = ImageIO.getReaderFormatNames();
+        for (String format : readerFormats) {
+            System.out.println("  - " + format);
         }
     }
 
@@ -85,14 +95,46 @@ public class ImageUtil {
     }
 
     public static BufferedImage loadImage(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            System.err.println("Image path is null or empty");
+            return createPlaceholderImage();
+        }
+        
         try {
             File file = new File(imagePath);
-            if (file.exists()) {
-                return ImageIO.read(file);
+            
+            if (!file.exists()) {
+                System.err.println("Image file does not exist: " + file.getAbsolutePath());
+                return createPlaceholderImage();
             }
-        } catch (IOException e) {
+            
+            // Try to read the image
+            BufferedImage img = ImageIO.read(file);
+            
+            if (img != null) {
+                // Convert to RGB if needed (handles transparency issues)
+                if (img.getType() != BufferedImage.TYPE_INT_RGB) {
+                    BufferedImage rgbImage = new BufferedImage(
+                        img.getWidth(), 
+                        img.getHeight(), 
+                        BufferedImage.TYPE_INT_RGB
+                    );
+                    Graphics2D g = rgbImage.createGraphics();
+                    g.setColor(Color.WHITE);
+                    g.fillRect(0, 0, img.getWidth(), img.getHeight());
+                    g.drawImage(img, 0, 0, null);
+                    g.dispose();
+                    return rgbImage;
+                }
+                return img;
+            } else {
+                System.err.println("ImageIO.read returned null for: " + imagePath);
+            }
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + imagePath);
             e.printStackTrace();
         }
+        
         return createPlaceholderImage();
     }
 
@@ -119,7 +161,16 @@ public class ImageUtil {
         
         BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = resizedImage.createGraphics();
+        
+        // Better quality rendering
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Fill white background first
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, newWidth, newHeight);
+        
         g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
         g.dispose();
         

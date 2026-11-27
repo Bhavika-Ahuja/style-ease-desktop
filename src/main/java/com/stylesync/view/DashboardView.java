@@ -197,6 +197,10 @@ public class DashboardView extends JFrame {
 
         panel.add(headerPanel, BorderLayout.NORTH);
 
+        // Main content area with stats and sections
+        JPanel mainContent = new JPanel(new BorderLayout());
+        mainContent.setBackground(StyleSyncColors.BACKGROUND);
+
         // Stats cards
         JPanel statsPanel = new JPanel(new GridLayout(1, 4, 20, 20));
         statsPanel.setBackground(StyleSyncColors.BACKGROUND);
@@ -208,14 +212,237 @@ public class DashboardView extends JFrame {
         statsPanel.add(createStatCard("Favorite Outfits", 
                 String.valueOf(controller.getFavoriteOutfits()), 
                 StyleSyncColors.SECONDARY));
-        statsPanel.add(createStatCard("7-Day Wear", 
+        statsPanel.add(createStatCard("Times Worn", 
                 String.valueOf(controller.getWeekWearCount()), 
                 StyleSyncColors.SUCCESS));
         statsPanel.add(createStatCard("Style Score", 
-                "92%", 
+                "92", 
                 StyleSyncColors.INFO));
 
-        panel.add(statsPanel, BorderLayout.CENTER);
+        mainContent.add(statsPanel, BorderLayout.NORTH);
+
+        // Recently Added and Smart Recommendation sections
+        JPanel sectionsPanel = new JPanel(new GridLayout(1, 2, 20, 0));
+        sectionsPanel.setBackground(StyleSyncColors.BACKGROUND);
+
+        sectionsPanel.add(createRecentlyAddedSection());
+        sectionsPanel.add(createSmartRecommendationSection());
+
+        mainContent.add(sectionsPanel, BorderLayout.CENTER);
+        panel.add(mainContent, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createRecentlyAddedSection() {
+        RoundedPanel section = new RoundedPanel(15);
+        section.setLayout(new BorderLayout());
+        section.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("Recently Added");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titleLabel.setForeground(StyleSyncColors.TEXT_PRIMARY);
+
+        JLabel viewAllLabel = new JLabel("View All →");
+        viewAllLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        viewAllLabel.setForeground(StyleSyncColors.PRIMARY);
+        viewAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        viewAllLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                switchView("WARDROBE");
+            }
+        });
+
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(viewAllLabel, BorderLayout.EAST);
+
+        // Items panel
+        JPanel itemsPanel = new JPanel(new GridLayout(1, 3, 15, 0));
+        itemsPanel.setBackground(Color.WHITE);
+        itemsPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+
+        // Get recent items
+        java.util.List<com.stylesync.model.ClothingItem> recentItems = controller.getRecentItems(3);
+        
+        if (recentItems.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No items yet. Add some clothing!");
+            emptyLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            emptyLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
+            emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            itemsPanel.setLayout(new BorderLayout());
+            itemsPanel.add(emptyLabel, BorderLayout.CENTER);
+        } else {
+            for (com.stylesync.model.ClothingItem item : recentItems) {
+                itemsPanel.add(createMiniItemCard(item));
+            }
+        }
+
+        section.add(headerPanel, BorderLayout.NORTH);
+        section.add(itemsPanel, BorderLayout.CENTER);
+
+        return section;
+    }
+
+    private JPanel createSmartRecommendationSection() {
+        RoundedPanel section = new RoundedPanel(15);
+        section.setLayout(new BorderLayout());
+        section.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("Smart Recommendation");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titleLabel.setForeground(StyleSyncColors.TEXT_PRIMARY);
+
+        JLabel viewAllLabel = new JLabel("View All →");
+        viewAllLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        viewAllLabel.setForeground(StyleSyncColors.PRIMARY);
+        viewAllLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        viewAllLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                switchView("RECOMMENDATIONS");
+            }
+        });
+
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(viewAllLabel, BorderLayout.EAST);
+
+        // Recommendation content
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(Color.WHITE);
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
+
+        // Get recommended items (least worn or favorites)
+        java.util.List<com.stylesync.model.ClothingItem> recommended = controller.getRecommendedItems(3);
+
+        if (recommended.isEmpty()) {
+            JLabel emptyLabel = new JLabel("Add items to get smart recommendations!");
+            emptyLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            emptyLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
+            emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            contentPanel.add(emptyLabel);
+        } else {
+            JLabel tipLabel = new JLabel("💡 Try wearing these items:");
+            tipLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            tipLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
+            contentPanel.add(tipLabel);
+            contentPanel.add(Box.createVerticalStrut(10));
+
+            for (com.stylesync.model.ClothingItem item : recommended) {
+                contentPanel.add(createRecommendationItem(item));
+                contentPanel.add(Box.createVerticalStrut(8));
+            }
+        }
+
+        section.add(headerPanel, BorderLayout.NORTH);
+        section.add(contentPanel, BorderLayout.CENTER);
+
+        return section;
+    }
+
+    private JPanel createMiniItemCard(com.stylesync.model.ClothingItem item) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(StyleSyncColors.BACKGROUND);
+        card.setBorder(BorderFactory.createLineBorder(StyleSyncColors.BORDER, 1));
+
+        // Image
+        JLabel imageLabel = new JLabel();
+        imageLabel.setPreferredSize(new Dimension(150, 150));
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setBackground(Color.WHITE);
+        imageLabel.setOpaque(true);
+
+        try {
+            com.stylesync.util.ImageUtil.getScaledImageIcon(item.getImagePath(), 150, 140);
+            ImageIcon icon = com.stylesync.util.ImageUtil.getScaledImageIcon(item.getImagePath(), 150, 140);
+            imageLabel.setIcon(icon);
+        } catch (Exception e) {
+            imageLabel.setText("No Image");
+            imageLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
+        }
+
+        // Info
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+        JLabel nameLabel = new JLabel(item.getName());
+        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        nameLabel.setForeground(StyleSyncColors.TEXT_PRIMARY);
+
+        JLabel typeLabel = new JLabel(item.getType());
+        typeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        typeLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
+
+        infoPanel.add(nameLabel);
+        infoPanel.add(typeLabel);
+
+        card.add(imageLabel, BorderLayout.CENTER);
+        card.add(infoPanel, BorderLayout.SOUTH);
+
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                switchView("WARDROBE");
+            }
+        });
+
+        return card;
+    }
+
+    private JPanel createRecommendationItem(com.stylesync.model.ClothingItem item) {
+        JPanel panel = new JPanel(new BorderLayout(10, 0));
+        panel.setBackground(Color.WHITE);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        // Mini image
+        JLabel imageLabel = new JLabel();
+        imageLabel.setPreferredSize(new Dimension(50, 50));
+        imageLabel.setBackground(StyleSyncColors.BACKGROUND);
+        imageLabel.setOpaque(true);
+        imageLabel.setBorder(BorderFactory.createLineBorder(StyleSyncColors.BORDER, 1));
+
+        try {
+            ImageIcon icon = com.stylesync.util.ImageUtil.getScaledImageIcon(item.getImagePath(), 50, 50);
+            imageLabel.setIcon(icon);
+        } catch (Exception e) {
+            imageLabel.setText("?");
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+
+        // Info
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(Color.WHITE);
+
+        JLabel nameLabel = new JLabel(item.getName());
+        nameLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        nameLabel.setForeground(StyleSyncColors.TEXT_PRIMARY);
+
+        JLabel detailLabel = new JLabel("Worn " + item.getWearCount() + " times");
+        detailLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        detailLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
+
+        infoPanel.add(nameLabel);
+        infoPanel.add(detailLabel);
+
+        panel.add(imageLabel, BorderLayout.WEST);
+        panel.add(infoPanel, BorderLayout.CENTER);
+
+        panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        panel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                switchView("WARDROBE");
+            }
+        });
 
         return panel;
     }

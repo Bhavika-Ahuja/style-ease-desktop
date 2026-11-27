@@ -2,12 +2,16 @@ package com.stylesync.controller;
 
 import com.stylesync.dao.ClothingItemDAO;
 import com.stylesync.dao.OutfitDAO;
+import com.stylesync.model.ClothingItem;
 import com.stylesync.model.User;
 import com.stylesync.service.AuthService;
 import com.stylesync.view.DashboardView;
 import com.stylesync.view.LoginView;
 
 import javax.swing.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller for dashboard operations
@@ -52,7 +56,30 @@ public class DashboardController {
     }
 
     public int getWeekWearCount() {
-        // Simplified calculation - could be enhanced to track actual 7-day wear
-        return getTotalItems() > 0 ? (int) (Math.random() * 15) + 5 : 0;
+        // Calculate total wear count from all items
+        List<ClothingItem> items = clothingItemDAO.findByUserId(currentUser.getId());
+        return items.stream().mapToInt(ClothingItem::getWearCount).sum();
+    }
+
+    /**
+     * Get recently added items (sorted by date, newest first)
+     */
+    public List<ClothingItem> getRecentItems(int limit) {
+        List<ClothingItem> allItems = clothingItemDAO.findByUserId(currentUser.getId());
+        return allItems.stream()
+                .sorted(Comparator.comparing(ClothingItem::getAddedDate).reversed())
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get recommended items (least worn items)
+     */
+    public List<ClothingItem> getRecommendedItems(int limit) {
+        List<ClothingItem> allItems = clothingItemDAO.findByUserId(currentUser.getId());
+        return allItems.stream()
+                .sorted(Comparator.comparing(ClothingItem::getWearCount))
+                .limit(limit)
+                .collect(Collectors.toList());
     }
 }

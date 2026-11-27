@@ -82,6 +82,12 @@ public class WardrobeView extends JPanel {
         sampleDataButton.setBackground(new Color(100, 180, 100));
         sampleDataButton.addActionListener(e -> loadSampleData());
         buttonPanel.add(sampleDataButton);
+        
+        // Clear all button (for testing)
+        ModernButton clearButton = new ModernButton("Clear All Items", false);
+        clearButton.setBackground(new Color(220, 80, 80));
+        clearButton.addActionListener(e -> clearAllItems());
+        buttonPanel.add(clearButton);
 
         headerPanel.add(titleLabel, BorderLayout.WEST);
         headerPanel.add(buttonPanel, BorderLayout.EAST);
@@ -318,6 +324,37 @@ public class WardrobeView extends JPanel {
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(this,
                         "Error loading sample data: " + e.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void clearAllItems() {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "This will DELETE ALL items in your wardrobe!\nAre you sure?",
+                "Clear All Items",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                // Get all items and delete them
+                ArrayList<ClothingItem> allItems = controller.getAllItems();
+                for (ClothingItem item : allItems) {
+                    controller.deleteItem(item);
+                }
+                JOptionPane.showMessageDialog(this,
+                        "All items deleted successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+                refreshItems();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this,
+                        "Error clearing items: " + e.getMessage(),
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
