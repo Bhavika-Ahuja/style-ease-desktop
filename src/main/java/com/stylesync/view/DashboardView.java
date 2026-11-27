@@ -16,6 +16,7 @@ public class DashboardView extends JFrame {
     private JPanel contentPanel;
     private JPanel sidebarPanel;
     private CardLayout cardLayout;
+    private JPanel homePanel; // Store reference to home panel
     
     // Views
     private WardrobeView wardrobeView;
@@ -58,12 +59,15 @@ public class DashboardView extends JFrame {
         analyticsView = new AnalyticsView(currentUser, this);
         profileView = new ProfileView(currentUser, this);
 
-        contentPanel.add(createHomePanel(), "HOME");
         contentPanel.add(wardrobeView, "WARDROBE");
         contentPanel.add(outfitView, "OUTFITS");
         contentPanel.add(recommendationView, "RECOMMENDATIONS");
         contentPanel.add(analyticsView, "ANALYTICS");
         contentPanel.add(profileView, "PROFILE");
+
+        // Create initial home panel
+        homePanel = createHomePanel();
+        contentPanel.add(homePanel, "HOME");
 
         mainPanel.add(contentPanel, BorderLayout.CENTER);
         add(mainPanel);
@@ -268,8 +272,10 @@ public class DashboardView extends JFrame {
         // Get recent items
         java.util.List<com.stylesync.model.ClothingItem> recentItems = controller.getRecentItems(3);
         
+        System.out.println("DEBUG: Recent items count: " + recentItems.size());
+        
         if (recentItems.isEmpty()) {
-            JLabel emptyLabel = new JLabel("No items yet. Add some clothing!");
+            JLabel emptyLabel = new JLabel("<html><center>No items yet.<br>Add some clothing!</center></html>");
             emptyLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
             emptyLabel.setForeground(StyleSyncColors.TEXT_SECONDARY);
             emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -277,6 +283,7 @@ public class DashboardView extends JFrame {
             itemsPanel.add(emptyLabel, BorderLayout.CENTER);
         } else {
             for (com.stylesync.model.ClothingItem item : recentItems) {
+                System.out.println("DEBUG: Adding item: " + item.getName());
                 itemsPanel.add(createMiniItemCard(item));
             }
         }
@@ -483,9 +490,16 @@ public class DashboardView extends JFrame {
             return;
         }
 
+        // Refresh HOME panel before showing it
+        if (viewName.equals("HOME")) {
+            contentPanel.remove(homePanel);
+            homePanel = createHomePanel();
+            contentPanel.add(homePanel, "HOME");
+        }
+        
         cardLayout.show(contentPanel, viewName);
         
-        // Refresh view if needed
+        // Refresh other views if needed
         if (viewName.equals("WARDROBE")) {
             wardrobeView.refreshItems();
         } else if (viewName.equals("OUTFITS")) {

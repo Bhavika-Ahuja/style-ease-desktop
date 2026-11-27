@@ -84,7 +84,7 @@ public class RecommendationView extends JPanel {
         JPanel weatherContent = new JPanel(new BorderLayout());
         weatherContent.setOpaque(false);
 
-        weatherLabel = new JLabel("Perfect for today's weather");
+        weatherLabel = new JLabel("Weather in Mumbai: partly cloudy, 22.0°C");
         weatherLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         weatherLabel.setForeground(Color.WHITE);
 
@@ -107,7 +107,7 @@ public class RecommendationView extends JPanel {
         filterPanel.setBackground(StyleSyncColors.BACKGROUND);
         filterPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
 
-        cityField = new ModernTextField("Enter city (e.g., London)");
+        cityField = new ModernTextField("Enter city (e.g., Mumbai)");
         cityField.setPreferredSize(new Dimension(200, 40));
 
         String[] occasions = {"Casual", "Formal", "Party", "Work", "Sport"};
@@ -158,7 +158,7 @@ public class RecommendationView extends JPanel {
         String occasion = (String) occasionCombo.getSelectedItem();
 
         if (city.isEmpty()) {
-            city = "London"; // Default
+            city = "Mumbai"; // Default
         }
 
         // Get weather info

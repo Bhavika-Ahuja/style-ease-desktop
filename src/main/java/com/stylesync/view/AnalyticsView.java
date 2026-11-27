@@ -222,7 +222,7 @@ public class AnalyticsView extends JPanel {
         section.setBackground(StyleSyncColors.BACKGROUND);
         section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 400));
 
-        JLabel sectionTitle = new JLabel("Distribution Analysis (HashMap)");
+        JLabel sectionTitle = new JLabel("Distribution Analysis");
         sectionTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         sectionTitle.setForeground(StyleSyncColors.TEXT_PRIMARY);
         sectionTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -333,7 +333,7 @@ public class AnalyticsView extends JPanel {
         section.setBackground(StyleSyncColors.BACKGROUND);
         section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
-        JLabel sectionTitle = new JLabel("Wear Statistics (PriorityQueue)");
+        JLabel sectionTitle = new JLabel("Wear Statistics");
         sectionTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         sectionTitle.setForeground(StyleSyncColors.TEXT_PRIMARY);
         sectionTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -425,7 +425,7 @@ public class AnalyticsView extends JPanel {
         section.setBackground(StyleSyncColors.BACKGROUND);
         section.setMaximumSize(new Dimension(Integer.MAX_VALUE, 300));
 
-        JLabel sectionTitle = new JLabel("Alphabetically Sorted Items (TreeSet)");
+        JLabel sectionTitle = new JLabel("Alphabetically Sorted Items");
         sectionTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
         sectionTitle.setForeground(StyleSyncColors.TEXT_PRIMARY);
         sectionTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
